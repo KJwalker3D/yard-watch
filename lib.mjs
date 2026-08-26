@@ -11,6 +11,7 @@ export const ROOT = dirname(fileURLToPath(import.meta.url));
 const g = JSON.parse(readFileSync(join(ROOT, "games.json"), "utf8"));
 export const GAMES = g.games ?? [];
 export const UGC_ITEMS = g.ugcItems ?? [];
+export const DCL_WORLDS = g.dclWorlds ?? [];
 
 let cfg = {};
 try {
@@ -24,12 +25,11 @@ export function setting(name, fallback) {
   return process.env[name] ?? cfg.settings?.[name] ?? fallback;
 }
 
-export function webhookFor(category) {
-  return (
-    process.env["WEBHOOK_" + category.toUpperCase()] ||
-    cfg.webhooks?.[category] ||
-    process.env.WEBHOOK_DEFAULT ||
-    cfg.discordWebhookUrl ||
-    ""
-  );
+// noFallback: return "" instead of the default webhook when the category has
+// no URL of its own (used for opt-in streams like "dcl")
+export function webhookFor(category, noFallback = false) {
+  const specific =
+    process.env["WEBHOOK_" + category.toUpperCase()] || cfg.webhooks?.[category];
+  if (specific || noFallback) return specific || "";
+  return process.env.WEBHOOK_DEFAULT || cfg.discordWebhookUrl || "";
 }

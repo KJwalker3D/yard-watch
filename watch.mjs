@@ -7,7 +7,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ROOT, GAMES, UGC_ITEMS, webhookFor, setting } from "./lib.mjs";
+import { ROOT, GAMES, UGC_ITEMS, DCL_WORLDS, webhookFor, setting } from "./lib.mjs";
 
 const STATE_PATH = join(ROOT, "data", "watch-state.json");
 const VELOCITY_ALERT = Number(setting("VELOCITY_ALERT", 5)) || 5;
@@ -18,8 +18,8 @@ async function getJson(url) {
   return res.json();
 }
 
-async function post(category, content) {
-  const url = webhookFor(category);
+async function post(category, content, noFallback = false) {
+  const url = webhookFor(category, noFallback);
   if (!url) {
     console.log(`[no ${category} webhook] ` + content);
     return;
@@ -35,6 +35,7 @@ async function post(category, content) {
 if (process.argv.includes("--test")) {
   await post("live", "👀 Watcher test ping (live channel) — wiring works.");
   await post("ugc", "👀 Watcher test ping (ugc channel) — wiring works.");
+  await post("dcl", "👀 Watcher test ping (dcl channel) — wiring works.", true);
   console.log("Test pings sent.");
   process.exit(0);
 }
@@ -50,6 +51,7 @@ state.items ??= {};
 
 const alerts = []; // live game events
 const ugcAlerts = []; // UGC item events
+const dclAlerts = []; // Decentraland world events
 const fmt = (n) => n.toLocaleString("en-US");
 
 // ---- games: CCU / votes / favorites ----
@@ -123,6 +125,44 @@ for (const item of UGC_ITEMS) {
   state.items[item.assetId] = cur;
 }
 
+// ---- Decentraland worlds: in-world users / votes / favorites / deploys ----
+if (DCL_WORLDS.length) {
+  try {
+    const qs = DCL_WORLDS.map((n) => `names=${encodeURIComponent(n)}`).join("&");
+    const dclRes = await getJson(`https://places.decentraland.org/api/worlds?${qs}`);
+    state.dcl ??= {};
+    for (const w of dclRes.data ?? []) {
+      const prev = state.dcl[w.id] ?? {};
+      const cur = {
+        users: w.user_count ?? 0,
+        likes: w.likes ?? 0,
+        dislikes: w.dislikes ?? 0,
+        favorites: w.favorites ?? 0,
+        deployedAt: w.deployed_at,
+      };
+      const name = w.title;
+      if (cur.users > 0 && (prev.users ?? 0) === 0) {
+        dclAlerts.push(`🪩 **${name}** — ${cur.users} in-world RIGHT NOW`);
+      }
+      if (prev.likes !== undefined && cur.likes > prev.likes) {
+        dclAlerts.push(`👍 **${name}** — +${cur.likes - prev.likes} like(s)`);
+      }
+      if (prev.dislikes !== undefined && cur.dislikes > prev.dislikes) {
+        dclAlerts.push(`👎 **${name}** — +${cur.dislikes - prev.dislikes} dislike(s)`);
+      }
+      if (prev.favorites !== undefined && cur.favorites > prev.favorites) {
+        dclAlerts.push(`⭐ **${name}** — +${cur.favorites - prev.favorites} favorite(s)`);
+      }
+      if (prev.deployedAt && cur.deployedAt !== prev.deployedAt) {
+        dclAlerts.push(`🚀 **${name}** — new deploy is live`);
+      }
+      state.dcl[w.id] = cur;
+    }
+  } catch (e) {
+    console.error("dcl: " + e.message);
+  }
+}
+
 mkdirSync(dirname(STATE_PATH), { recursive: true });
 writeFileSync(STATE_PATH, JSON.stringify(state, null, 2));
 
@@ -134,6 +174,10 @@ if (ugcAlerts.length) {
   await post("ugc", ugcAlerts.join("\n"));
   console.log(`Sent ${ugcAlerts.length} UGC alert(s):\n` + ugcAlerts.join("\n"));
 }
-if (!alerts.length && !ugcAlerts.length) {
+if (dclAlerts.length) {
+  await post("dcl", dclAlerts.join("\n"), true);
+  console.log(`Sent ${dclAlerts.length} DCL alert(s):\n` + dclAlerts.join("\n"));
+}
+if (!alerts.length && !ugcAlerts.length && !dclAlerts.length) {
   console.log("No events.");
 }

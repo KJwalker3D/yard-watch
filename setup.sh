@@ -22,6 +22,7 @@ const m = {
   WEBHOOK_LIVE: c.webhooks?.live,
   WEBHOOK_UGC: c.webhooks?.ugc,
   WEBHOOK_WEEKLY: c.webhooks?.weekly,
+  WEBHOOK_DCL: c.webhooks?.dcl,
   WEBHOOK_DEFAULT: c.discordWebhookUrl,
   ...(c.settings ?? {}),
 };

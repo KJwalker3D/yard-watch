@@ -5,7 +5,9 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ROOT, GAMES, webhookFor } from "./lib.mjs";
+import { ROOT, GAMES, DCL_WORLDS, webhookFor } from "./lib.mjs";
+
+const DRY = process.argv.includes("--dry");
 
 const HISTORY_PATH = join(ROOT, "data", "history.json");
 const HISTORY_KEEP = 120; // snapshots kept per game (~4 months of daily runs)
@@ -108,6 +110,48 @@ for (const { name, universeId } of GAMES) {
   history[universeId] = [...past, snap].slice(-HISTORY_KEEP);
 }
 
+// ---- Decentraland worlds ----
+const dclEmbeds = [];
+if (DCL_WORLDS.length) {
+  const qs = DCL_WORLDS.map((n) => `names=${encodeURIComponent(n)}`).join("&");
+  const dclRes = await getJson(`https://places.decentraland.org/api/worlds?${qs}`);
+  for (const w of dclRes.data ?? []) {
+    const key = `dcl:${w.id}`;
+    const past = history[key] ?? [];
+    const prev = past[past.length - 1];
+    const snap = {
+      at: now.toISOString(),
+      title: w.title,
+      likes: w.likes ?? 0,
+      dislikes: w.dislikes ?? 0,
+      favorites: w.favorites ?? 0,
+      users: w.user_count ?? 0,
+      deployedAt: w.deployed_at,
+    };
+    const rows = [];
+    rows.push(`In-world now: ${fmt(snap.users)}`);
+    rows.push(
+      `Likes: ${fmt(snap.likes)}👍 / ${fmt(snap.dislikes)}👎` +
+        (prev ? ` (${signed(snap.likes - prev.likes)}👍 ${signed(snap.dislikes - prev.dislikes)}👎)` : "")
+    );
+    rows.push(
+      `Favorites: ${fmt(snap.favorites)}` + (prev ? ` (${signed(snap.favorites - prev.favorites)})` : "")
+    );
+    if (typeof w.like_score === "number") rows.push(`Like score: ${Math.round(w.like_score * 100)}%`);
+    if (prev && snap.deployedAt !== prev.deployedAt) {
+      rows.push(`🚀 New deploy since last run (${new Date(snap.deployedAt).toUTCString()})`);
+    }
+    lines.push(`## ${w.title} (DCL)`, ...rows.map((r) => `  ${r}`), "");
+    dclEmbeds.push({
+      title: `${w.title} (DCL)`,
+      url: `https://decentraland.org/jump/?realm=${w.id}`,
+      description: rows.join("\n"),
+      color: 0xff2d55,
+    });
+    history[key] = [...past, snap].slice(-HISTORY_KEEP);
+  }
+}
+
 const header = `☀️ Morning brief — ${now.toDateString()}`;
 console.log(header + "\n");
 console.log(lines.join("\n"));
@@ -115,18 +159,28 @@ console.log(lines.join("\n"));
 mkdirSync(dirname(HISTORY_PATH), { recursive: true });
 writeFileSync(HISTORY_PATH, JSON.stringify(history, null, 2));
 
-const webhook = webhookFor("daily");
-if (webhook) {
-  const res = await fetch(webhook, {
+async function postEmbeds(category, content, embedList, noFallback = false) {
+  const url = webhookFor(category, noFallback);
+  if (!url) {
+    console.log(`(No ${category} webhook — printed only.)`);
+    return;
+  }
+  const res = await fetch(url, {
     method: "POST",
     headers: { "content-type": "application/json" },
-    body: JSON.stringify({ content: `**${header}**`, embeds }),
+    body: JSON.stringify({ content, embeds: embedList }),
   });
   if (!res.ok) {
-    console.error(`Discord webhook failed: ${res.status} ${await res.text()}`);
-    process.exit(1);
+    console.error(`Discord ${category} webhook failed: ${res.status} ${await res.text()}`);
+    process.exitCode = 1;
+    return;
   }
-  console.log("Posted to Discord.");
-} else {
-  console.log("(No webhook configured — printed only.)");
+  console.log(`Posted to Discord (${category}).`);
+}
+
+if (!DRY) {
+  await postEmbeds("daily", `**${header}**`, embeds);
+  if (dclEmbeds.length) {
+    await postEmbeds("dcl", `**🪩 DCL brief — ${now.toDateString()}**`, dclEmbeds, true);
+  }
 }

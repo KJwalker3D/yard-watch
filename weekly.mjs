@@ -5,7 +5,7 @@
 
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
-import { ROOT, GAMES, webhookFor } from "./lib.mjs";
+import { ROOT, GAMES, DCL_WORLDS, webhookFor } from "./lib.mjs";
 
 const history = JSON.parse(readFileSync(join(ROOT, "data", "history.json"), "utf8"));
 
@@ -57,19 +57,49 @@ for (const { name, universeId } of GAMES) {
   lines.push(`**${name}** — ${row.join(" · ")}`);
 }
 
+const dclLines = [];
+for (const id of DCL_WORLDS) {
+  const snaps = history[`dcl:${id}`];
+  if (!snaps?.length) continue;
+  const latest = snaps[snaps.length - 1];
+  const weekAgo = closest(snaps, now - 7 * DAY);
+  const name = latest.title ?? id;
+  if (!weekAgo || weekAgo === latest) {
+    dclLines.push(`**${name}** — not enough history yet (need ~a week of daily runs)`);
+    continue;
+  }
+  const row = [
+    `likes ${signed(latest.likes - weekAgo.likes)}👍 ${signed(latest.dislikes - weekAgo.dislikes)}👎`,
+    `favorites ${signed(latest.favorites - weekAgo.favorites)}`,
+  ];
+  dclLines.push(`**${name}** — ${row.join(" · ")}`);
+}
+
 const msg = `📅 **Weekly rollup — ${new Date().toDateString()}**\n` + lines.join("\n");
 console.log(msg);
+const dclMsg = dclLines.length
+  ? `📅 **DCL weekly — ${new Date().toDateString()}**\n` + dclLines.join("\n")
+  : "";
+if (dclMsg) console.log("\n" + dclMsg);
 
-const webhook = webhookFor("weekly");
-if (!process.argv.includes("--dry") && webhook) {
-  const res = await fetch(webhook, {
-    method: "POST",
-    headers: { "content-type": "application/json" },
-    body: JSON.stringify({ content: msg }),
-  });
-  if (!res.ok) {
-    console.error(`Discord webhook failed: ${res.status}`);
-    process.exit(1);
+if (!process.argv.includes("--dry")) {
+  const targets = [["weekly", msg, webhookFor("weekly")]];
+  if (dclMsg) targets.push(["dcl", dclMsg, webhookFor("dcl", true)]);
+  for (const [category, content, url] of targets) {
+    if (!url) {
+      console.log(`(No ${category} webhook — printed only.)`);
+      continue;
+    }
+    const res = await fetch(url, {
+      method: "POST",
+      headers: { "content-type": "application/json" },
+      body: JSON.stringify({ content }),
+    });
+    if (!res.ok) {
+      console.error(`Discord ${category} webhook failed: ${res.status}`);
+      process.exitCode = 1;
+    } else {
+      console.log(`Posted to Discord (${category}).`);
+    }
   }
-  console.log("\nPosted to Discord.");
 }

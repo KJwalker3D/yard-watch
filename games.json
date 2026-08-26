@@ -6,6 +6,7 @@
     { "name": "Moody 8 Ball", "universeId": 7494613974 },
     { "name": "Fat Head Football Cup", "universeId": 10292498332 }
   ],
+  "dclWorlds": ["cleantheclub.dcl.eth", "bloomgarden.dcl.eth"],
   "ugcItems": [
     { "name": "Fishbone Necklace", "assetId": 131452887907566 }
   ]

@@ -12,4 +12,5 @@ jobs:
       - run: node weekly.mjs
         env:
           WEBHOOK_WEEKLY: ${{ secrets.WEBHOOK_WEEKLY }}
+          WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}

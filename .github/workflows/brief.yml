@@ -16,6 +16,7 @@ jobs:
       - run: node brief.mjs
         env:
           WEBHOOK_DAILY: ${{ secrets.WEBHOOK_DAILY }}
+          WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}
       - name: persist history
         run: |

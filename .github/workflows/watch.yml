@@ -16,6 +16,7 @@ jobs:
         env:
           WEBHOOK_LIVE: ${{ secrets.WEBHOOK_LIVE }}
           WEBHOOK_UGC: ${{ secrets.WEBHOOK_UGC }}
+          WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}
           VELOCITY_ALERT: ${{ secrets.VELOCITY_ALERT }}
       - name: persist state
