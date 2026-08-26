@@ -1,0 +1,15 @@
+name: weekly-rollup
+on:
+  schedule:
+    # Sunday 07:00 UTC = 09:00 CEST (summer) / 08:00 CET (winter)
+    - cron: "0 7 * * 0"
+  workflow_dispatch:
+jobs:
+  weekly:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: node weekly.mjs
+        env:
+          WEBHOOK_WEEKLY: ${{ secrets.WEBHOOK_WEEKLY }}
+          WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}

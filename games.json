@@ -1,0 +1,12 @@
+{
+  "games": [
+    { "name": "Yard Wars", "universeId": 10532889402 },
+    { "name": "Smack or Die", "universeId": 10178558218 },
+    { "name": "Hide and Smack", "universeId": 7984392099 },
+    { "name": "Moody 8 Ball", "universeId": 7494613974 },
+    { "name": "Fat Head Football Cup", "universeId": 10292498332 }
+  ],
+  "ugcItems": [
+    { "name": "Fishbone Necklace", "assetId": 131452887907566, "velocityAlert": 5 }
+  ]
+}

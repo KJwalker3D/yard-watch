@@ -1,0 +1,8 @@
+# local webhook URLs — never commit; cloud uses GitHub Secrets instead
+config.json
+# runtime state (workflows force-add the files they own)
+data/
+*.log
+.DS_Store
+# local launchd plists (contain machine-specific paths)
+com.kj.*.plist
