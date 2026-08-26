@@ -19,6 +19,30 @@ Three scripts, sharing `config.json`:
 Leave any of them `""` and that stream falls back to the top-level
 `discordWebhookUrl`. Test with `node watch.mjs --test`.
 
+## Cloud mode (GitHub Actions) — runs 24/7, no Mac needed
+
+The folder is a git repo with workflows for all three scripts. Webhook URLs
+are NEVER committed (`config.json` is gitignored); in the cloud they live as
+GitHub Actions Secrets, uploaded by `setup.sh`. One-time setup:
+
+```
+brew install gh
+gh auth login
+./setup.sh
+```
+
+`setup.sh` creates a PRIVATE repo named `yard-watch` (pass another name as an
+argument), pushes, and sets the secrets. Note: private repos get 2,000 free
+Actions minutes/month — the 5-minute watcher uses ~9,000, so either flip the
+repo public (safe: it contains no secrets, only public game IDs and stats)
+with `gh repo edit --visibility public --accept-visibility-change-consequences`
+for unlimited free minutes, or slow the watcher's cron in
+`.github/workflows/watch.yml`.
+
+If cloud mode is on, do NOT also load the launchd jobs below — you'd get
+double posts. Local manual runs (`node brief.mjs` etc.) are always fine.
+GitHub cron isn't exact: expect the brief within ~15–30 min of the hour.
+
 ## What it reports, per game
 
 - Playing now (live CCU)
