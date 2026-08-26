@@ -1,0 +1,58 @@
+{
+  "games": {
+    "10532889402": {
+      "playing": 0,
+      "favorites": 26,
+      "up": 7,
+      "down": 4
+    },
+    "10178558218": {
+      "playing": 0,
+      "favorites": 4,
+      "up": 4,
+      "down": 1
+    },
+    "7984392099": {
+      "playing": 0,
+      "favorites": 263,
+      "up": 44,
+      "down": 8
+    },
+    "7494613974": {
+      "playing": 0,
+      "favorites": 7,
+      "up": 6,
+      "down": 1
+    },
+    "10292498332": {
+      "playing": 0,
+      "favorites": 9,
+      "up": 7,
+      "down": 2
+    }
+  },
+  "items": {
+    "131452887907566": {
+      "forSale": false,
+      "limited": false,
+      "remaining": null,
+      "sales": 0
+    }
+  },
+  "dcl": {
+    "bloomgarden.dcl.eth": {
+      "users": 0,
+      "likes": 16,
+      "dislikes": 2,
+      "favorites": 24,
+      "deployedAt": "2026-04-27T10:17:59.569Z"
+    },
+    "cleantheclub.dcl.eth": {
+      "users": 0,
+      "likes": 10,
+      "dislikes": 2,
+      "favorites": 9,
+      "deployedAt": "2026-08-24T11:19:00.401Z"
+    }
+  }
+}
