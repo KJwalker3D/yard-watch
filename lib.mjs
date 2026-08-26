@@ -19,6 +19,11 @@ try {
   // no local config (e.g. running in CI) — webhooks come from env
 }
 
+// tunables that shouldn't be public: env var (cloud secret) > config.json settings > fallback
+export function setting(name, fallback) {
+  return process.env[name] ?? cfg.settings?.[name] ?? fallback;
+}
+
 export function webhookFor(category) {
   return (
     process.env["WEBHOOK_" + category.toUpperCase()] ||

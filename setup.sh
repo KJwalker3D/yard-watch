@@ -23,6 +23,7 @@ const m = {
   WEBHOOK_UGC: c.webhooks?.ugc,
   WEBHOOK_WEEKLY: c.webhooks?.weekly,
   WEBHOOK_DEFAULT: c.discordWebhookUrl,
+  ...(c.settings ?? {}),
 };
 for (const [k, v] of Object.entries(m)) if (v) console.log(k + "\t" + v);
 ' | while IFS=$'\t' read -r key val; do

@@ -17,6 +17,7 @@ jobs:
           WEBHOOK_LIVE: ${{ secrets.WEBHOOK_LIVE }}
           WEBHOOK_UGC: ${{ secrets.WEBHOOK_UGC }}
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}
+          VELOCITY_ALERT: ${{ secrets.VELOCITY_ALERT }}
       - name: persist state
         run: |
           git config user.name "watch-bot"

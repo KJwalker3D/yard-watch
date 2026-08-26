@@ -7,9 +7,10 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ROOT, GAMES, UGC_ITEMS, webhookFor } from "./lib.mjs";
+import { ROOT, GAMES, UGC_ITEMS, webhookFor, setting } from "./lib.mjs";
 
 const STATE_PATH = join(ROOT, "data", "watch-state.json");
+const VELOCITY_ALERT = Number(setting("VELOCITY_ALERT", 5)) || 5;
 
 async function getJson(url) {
   const res = await fetch(url, { headers: { accept: "application/json" } });
@@ -113,7 +114,7 @@ for (const item of UGC_ITEMS) {
   }
   if (prev.remaining != null && cur.remaining != null && cur.remaining < prev.remaining) {
     const gone = prev.remaining - cur.remaining;
-    const speed = gone >= (item.velocityAlert ?? 5) ? " ⚠️ FAST — possible alt fleet" : "";
+    const speed = gone >= VELOCITY_ALERT ? " ⚠️ FAST — possible alt fleet" : "";
     ugcAlerts.push(`📦 **${name}** — ${gone} claimed since last check, **${cur.remaining} left**${speed}`);
   }
   if (prev.remaining == null && cur.remaining != null) {
