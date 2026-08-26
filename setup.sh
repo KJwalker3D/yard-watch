@@ -10,7 +10,14 @@ command -v gh >/dev/null || { echo "gh not found — run: brew install gh"; exit
 gh auth status >/dev/null 2>&1 || { echo "not logged in — run: gh auth login"; exit 1; }
 
 if ! git remote get-url origin >/dev/null 2>&1; then
-  gh repo create "$REPO_NAME" --private --source=. --push
+  if gh repo view "$REPO_NAME" >/dev/null 2>&1; then
+    # repo already exists (e.g. created in the web UI) — just wire it up
+    OWNER=$(gh api user -q .login)
+    git remote add origin "https://github.com/${OWNER}/${REPO_NAME}.git"
+    git push -u origin main
+  else
+    gh repo create "$REPO_NAME" --private --source=. --push
+  fi
 else
   git push -u origin HEAD
 fi
