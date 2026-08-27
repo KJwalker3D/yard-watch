@@ -2,7 +2,7 @@ name: daily-brief
 on:
   schedule:
     # 06:30 UTC = 08:30 CEST (summer) / 07:30 CET (winter)
-    - cron: "30 6 * * *"
+    - cron: "43 6 * * *"
   workflow_dispatch:
 concurrency:
   group: brief

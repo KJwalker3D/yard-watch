@@ -3,7 +3,7 @@ on:
   schedule:
     # hourly on purpose: GitHub heavily throttles */5 crons. The job itself
     # loops 12 x 5min below, so effective cadence stays ~5 minutes.
-    - cron: "0 * * * *"
+    - cron: "7 * * * *"
   workflow_dispatch:
 concurrency:
   group: watch
