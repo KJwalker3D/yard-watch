@@ -1,7 +1,9 @@
 name: watch
 on:
   schedule:
-    - cron: "*/5 * * * *"
+    # hourly on purpose: GitHub heavily throttles */5 crons. The job itself
+    # loops 12 x 5min below, so effective cadence stays ~5 minutes.
+    - cron: "0 * * * *"
   workflow_dispatch:
 concurrency:
   group: watch
@@ -12,7 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - run: node watch.mjs
+      - name: watch loop (12 x 5min)
+        run: |
+          for i in $(seq 1 12); do
+            node watch.mjs || true
+            [ "$i" -lt 12 ] && sleep 290
+          done
         env:
           WEBHOOK_LIVE: ${{ secrets.WEBHOOK_LIVE }}
           WEBHOOK_UGC: ${{ secrets.WEBHOOK_UGC }}
