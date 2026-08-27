@@ -18,7 +18,7 @@ jobs:
         run: |
           for i in $(seq 1 12); do
             node watch.mjs || true
-            [ "$i" -lt 12 ] && sleep 290
+            if [ "$i" -lt 12 ]; then sleep 290; fi
           done
         env:
           WEBHOOK_LIVE: ${{ secrets.WEBHOOK_LIVE }}
