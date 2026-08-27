@@ -5,7 +5,7 @@
 
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
-import { ROOT, GAMES, DCL_WORLDS, webhookFor } from "./lib.mjs";
+import { ROOT, GAMES, DCL_WORLDS, webhookFor, setting } from "./lib.mjs";
 
 const DRY = process.argv.includes("--dry");
 
@@ -151,6 +151,57 @@ if (DCL_WORLDS.length) {
     history[key] = [...past, snap].slice(-HISTORY_KEEP);
   }
 }
+
+// ---- Self-owned session telemetry (Supabase, Yard Wars) ----
+const SB_URL = setting("SUPABASE_URL", "");
+const SB_KEY = setting("SUPABASE_KEY", "");
+let statsEmbed = null;
+if (SB_URL && SB_KEY) {
+  try {
+    const since = new Date(now.getTime() - 8 * 86400000).toISOString();
+    const res = await fetch(
+      `${SB_URL}/rest/v1/yw_sessions?select=at,user_id,is_new,secs,step,platform&at=gte.${since}&limit=10000`,
+      { headers: { apikey: SB_KEY, authorization: `Bearer ${SB_KEY}` } }
+    );
+    if (!res.ok) throw new Error(`supabase ${res.status}`);
+    const rows = await res.json();
+    const day = (iso) => iso.slice(0, 10);
+    const yest = day(new Date(now.getTime() - 86400000).toISOString());
+    const before = day(new Date(now.getTime() - 2 * 86400000).toISOString());
+    const yRows = rows.filter((r) => day(r.at) === yest);
+    const newY = new Set(yRows.filter((r) => r.is_new).map((r) => r.user_id));
+    const newB = new Set(rows.filter((r) => day(r.at) === before && r.is_new).map((r) => r.user_id));
+    const returnedY = new Set(yRows.filter((r) => newB.has(r.user_id)).map((r) => r.user_id));
+    const d1 = newB.size ? Math.round((returnedY.size / newB.size) * 100) : null;
+    const firstSecs = yRows.filter((r) => r.is_new).map((r) => r.secs).sort((a, b) => a - b);
+    const median = firstSecs.length ? firstSecs[Math.floor(firstSecs.length / 2)] : null;
+    const ORDER = { Quit_BeforeYard: 0, Quit_NoSetYet: 1, Quit_AfterCoach: 2, Quit_AfterSet: 3, Quit_AfterLaunch: 4 };
+    const best = new Map();
+    for (const r of yRows) {
+      if (!newY.has(r.user_id)) continue;
+      const o = ORDER[r.step] ?? 0;
+      if (o > (best.get(r.user_id) ?? -1)) best.set(r.user_id, o);
+    }
+    const reached = (lvl) => [...best.values()].filter((o) => o >= lvl).length;
+    const mob = yRows.filter((r) => r.platform === "Mobile").length;
+    const fmtSecs = (s) => (s >= 60 ? `${Math.floor(s / 60)}m${s % 60 ? (s % 60) + "s" : ""}` : `${s}s`);
+    const t = [];
+    t.push(`New players: ${newY.size}`);
+    if (d1 !== null) t.push(`D1: ${returnedY.size}/${newB.size} of ${before}'s new players returned (${d1}%)`);
+    if (median !== null) t.push(`Median first session: ${fmtSecs(median)}`);
+    if (newY.size) t.push(`Funnel: coach ${reached(2)}/${newY.size} · first set ${reached(3)} · first launch ${reached(4)}`);
+    if (yRows.length) t.push(`Sessions: ${yRows.length} (${Math.round((mob / yRows.length) * 100)}% mobile)`);
+    if (yRows.length || newB.size) {
+      lines.push(`## 📊 Yesterday (Yard Wars telemetry)`, ...t.map((r) => `  ${r}`), "");
+      statsEmbed = { title: "📊 Yesterday — Yard Wars", description: t.join("\n"), color: 0x4caf50 };
+    } else {
+      console.log("(telemetry: connected, no session rows for yesterday yet)");
+    }
+  } catch (e) {
+    console.error("telemetry: " + e.message);
+  }
+}
+if (statsEmbed) embeds.push(statsEmbed);
 
 const header = `☀️ Morning brief — ${now.toDateString()}`;
 console.log(header + "\n");

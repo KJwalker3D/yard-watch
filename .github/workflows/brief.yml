@@ -17,6 +17,8 @@ jobs:
         env:
           WEBHOOK_DAILY: ${{ secrets.WEBHOOK_DAILY }}
           WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}
       - name: persist history
         run: |
