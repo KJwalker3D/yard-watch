@@ -9,6 +9,22 @@ import { ROOT, GAMES, DCL_WORLDS, webhookFor, setting } from "./lib.mjs";
 
 const DRY = process.argv.includes("--dry");
 
+// --if-due: exit quietly unless today's (UTC) brief hasn't been sent yet. Lets the watch loop
+// deliver the brief when GitHub's scheduler drops the dedicated cron (it drops most of them).
+const IF_DUE = process.argv.includes("--if-due");
+const BRIEF_STATE = join(ROOT, "data", "brief-state.json");
+const todayUTC = new Date().toISOString().slice(0, 10);
+if (IF_DUE) {
+  try {
+    if (JSON.parse(readFileSync(BRIEF_STATE, "utf8")).lastDate === todayUTC) {
+      console.log("brief already sent today — skipping");
+      process.exit(0);
+    }
+  } catch {
+    // no state yet — due
+  }
+}
+
 const HISTORY_PATH = join(ROOT, "data", "history.json");
 const HISTORY_KEEP = 120; // snapshots kept per game (~4 months of daily runs)
 
@@ -233,5 +249,8 @@ if (!DRY) {
   await postEmbeds("daily", `**${header}**`, embeds);
   if (dclEmbeds.length) {
     await postEmbeds("dcl", `**🪩 DCL brief — ${now.toDateString()}**`, dclEmbeds, true);
+  }
+  if (!process.exitCode) {
+    writeFileSync(BRIEF_STATE, JSON.stringify({ lastDate: todayUTC }));
   }
 }

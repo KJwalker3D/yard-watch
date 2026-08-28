@@ -3,7 +3,7 @@ on:
   schedule:
     # hourly on purpose: GitHub heavily throttles */5 crons. The job itself
     # loops 12 x 5min below, so effective cadence stays ~5 minutes.
-    - cron: "7 * * * *"
+    - cron: "7,37 * * * *"
   workflow_dispatch:
 concurrency:
   group: watch
@@ -17,6 +17,9 @@ jobs:
       - name: watch loop (12 x 5min)
         run: |
           for i in $(seq 1 12); do
+            # deliver the daily brief from whichever run fires first after 06:30 UTC —
+            # GitHub drops most dedicated crons on this repo, the state file prevents doubles
+            if [ "$(date -u +%H%M)" -ge 630 ]; then node brief.mjs --if-due || true; fi
             node watch.mjs || true
             if [ "$i" -lt 12 ]; then sleep 290; fi
           done
@@ -26,11 +29,15 @@ jobs:
           WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}
           VELOCITY_ALERT: ${{ secrets.VELOCITY_ALERT }}
+          WEBHOOK_DAILY: ${{ secrets.WEBHOOK_DAILY }}
+          WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       - name: persist state
         run: |
           git config user.name "watch-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add -f data/watch-state.json
+          git add -f data/watch-state.json data/history.json data/brief-state.json
           git diff --cached --quiet && exit 0
           git commit -m "watch state"
           for i in 1 2 3; do git push && exit 0; git pull --rebase; done
