@@ -30,7 +30,6 @@ jobs:
           WEBHOOK_DEFAULT: ${{ secrets.WEBHOOK_DEFAULT }}
           VELOCITY_ALERT: ${{ secrets.VELOCITY_ALERT }}
           WEBHOOK_DAILY: ${{ secrets.WEBHOOK_DAILY }}
-          WEBHOOK_DCL: ${{ secrets.WEBHOOK_DCL }}
           SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
           SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
       - name: persist state
