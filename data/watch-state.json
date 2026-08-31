@@ -1,10 +1,10 @@
 {
   "games": {
     "10532889402": {
-      "playing": 1,
-      "favorites": 37,
+      "playing": 6,
+      "favorites": 39,
       "up": 9,
-      "down": 4
+      "down": 5
     },
     "10178558218": {
       "playing": 0,
@@ -35,7 +35,7 @@
     "131452887907566": {
       "forSale": true,
       "limited": true,
-      "remaining": 25,
+      "remaining": 24,
       "sales": 0
     }
   },
@@ -51,7 +51,7 @@
       "users": 0,
       "likes": 10,
       "dislikes": 2,
-      "favorites": 9,
+      "favorites": 10,
       "deployedAt": "2026-08-24T11:19:00.401Z"
     }
   }
