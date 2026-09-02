@@ -1,8 +1,8 @@
 {
   "games": {
     "10532889402": {
-      "playing": 0,
-      "favorites": 47,
+      "playing": 1,
+      "favorites": 48,
       "up": 12,
       "down": 5
     },
@@ -33,9 +33,9 @@
   },
   "items": {
     "131452887907566": {
-      "forSale": false,
+      "forSale": true,
       "limited": true,
-      "remaining": 19,
+      "remaining": 18,
       "sales": 0
     }
   },
