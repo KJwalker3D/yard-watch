@@ -1,8 +1,8 @@
 {
   "games": {
     "10532889402": {
-      "playing": 2,
-      "favorites": 76,
+      "playing": 0,
+      "favorites": 81,
       "up": 19,
       "down": 5
     },
@@ -42,16 +42,16 @@
   "dcl": {
     "bloomgarden.dcl.eth": {
       "users": 0,
-      "likes": 16,
+      "likes": 17,
       "dislikes": 2,
       "favorites": 24,
       "deployedAt": "2026-04-27T10:17:59.569Z"
     },
     "cleantheclub.dcl.eth": {
       "users": 0,
-      "likes": 11,
+      "likes": 12,
       "dislikes": 2,
-      "favorites": 10,
+      "favorites": 11,
       "deployedAt": "2026-08-24T11:19:00.401Z"
     }
   }
