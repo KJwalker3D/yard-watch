@@ -1,7 +1,7 @@
 {
   "games": {
     "10532889402": {
-      "playing": 0,
+      "playing": 1,
       "favorites": 188,
       "up": 44,
       "down": 6
@@ -44,7 +44,7 @@
       "users": 0,
       "likes": 18,
       "dislikes": 2,
-      "favorites": 25,
+      "favorites": 26,
       "deployedAt": "2026-04-27T10:17:59.569Z"
     },
     "cleantheclub.dcl.eth": {
