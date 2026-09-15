@@ -2,7 +2,7 @@
   "games": {
     "10532889402": {
       "playing": 0,
-      "favorites": 194,
+      "favorites": 195,
       "up": 45,
       "down": 6
     },
@@ -49,9 +49,9 @@
     },
     "cleantheclub.dcl.eth": {
       "users": 0,
-      "likes": 13,
+      "likes": 14,
       "dislikes": 2,
-      "favorites": 11,
+      "favorites": 12,
       "deployedAt": "2026-08-24T11:19:00.401Z"
     }
   }
