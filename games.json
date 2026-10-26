@@ -4,7 +4,9 @@
     { "name": "Smack or Die", "universeId": 10178558218 },
     { "name": "Hide and Smack", "universeId": 7984392099 },
     { "name": "Moody 8 Ball", "universeId": 7494613974 },
-    { "name": "Fat Head Football Cup", "universeId": 10292498332 }
+    { "name": "Fat Head Football Cup", "universeId": 10292498332 },
+    { "name": "Six Petals", "universeId": 10772591818 },
+    { "name": "Lift a Lemon", "universeId": 10767677978 }
   ],
   "dclWorlds": ["cleantheclub.dcl.eth", "bloomgarden.dcl.eth"],
   "ugcItems": [
