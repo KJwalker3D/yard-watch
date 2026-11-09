@@ -53,7 +53,7 @@
   },
   "dcl": {
     "bloomgarden.dcl.eth": {
-      "users": 0,
+      "users": 1,
       "likes": 19,
       "dislikes": 2,
       "favorites": 29,
@@ -63,7 +63,7 @@
       "users": 0,
       "likes": 15,
       "dislikes": 2,
-      "favorites": 14,
+      "favorites": 15,
       "deployedAt": "2026-08-24T11:19:00.401Z"
     }
   }
