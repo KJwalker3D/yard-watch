@@ -2,7 +2,7 @@
   "games": {
     "10532889402": {
       "playing": 0,
-      "favorites": 210,
+      "favorites": 211,
       "up": 45,
       "down": 6
     },
@@ -53,7 +53,7 @@
   },
   "dcl": {
     "bloomgarden.dcl.eth": {
-      "users": 0,
+      "users": 2,
       "likes": 19,
       "dislikes": 2,
       "favorites": 29,
