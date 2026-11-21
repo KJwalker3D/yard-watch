@@ -53,10 +53,10 @@
   },
   "dcl": {
     "bloomgarden.dcl.eth": {
-      "users": 0,
-      "likes": 27,
+      "users": 1,
+      "likes": 26,
       "dislikes": 3,
-      "favorites": 39,
+      "favorites": 40,
       "deployedAt": "2026-10-16T19:49:42.365Z"
     },
     "cleantheclub.dcl.eth": {
